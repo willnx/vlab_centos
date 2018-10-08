@@ -44,6 +44,16 @@ class TestCentOSView(unittest.TestCase):
 
         self.assertEqual(task_id, expected)
 
+    def test_get_task_link(self):
+        """CentOSView - GET on /api/1/inf/centos sets the Link header"""
+        resp = self.app.get('/api/1/inf/centos',
+                            headers={'X-Auth': self.token})
+
+        task_id = resp.headers['Link']
+        expected = '<https://localhost/api/1/inf/centos/task/asdf-asdf-asdf>; rel=status'
+
+        self.assertEqual(task_id, expected)
+
     def test_post_task(self):
         """CentOSView - POST on /api/1/inf/centos returns a task-id"""
         resp = self.app.post('/api/1/inf/centos',
@@ -54,6 +64,19 @@ class TestCentOSView(unittest.TestCase):
 
         task_id = resp.json['content']['task-id']
         expected = 'asdf-asdf-asdf'
+
+        self.assertEqual(task_id, expected)
+
+    def test_post_task_link(self):
+        """CentOSView - POST on /api/1/inf/centos sets the Link header"""
+        resp = self.app.post('/api/1/inf/centos',
+                             headers={'X-Auth': self.token},
+                             json={'network': "someLAN",
+                                   'name': "myCentOSBox",
+                                   'image': "someVersion"})
+
+        task_id = resp.headers['Link']
+        expected = '<https://localhost/api/1/inf/centos/task/asdf-asdf-asdf>; rel=status'
 
         self.assertEqual(task_id, expected)
 
@@ -68,6 +91,17 @@ class TestCentOSView(unittest.TestCase):
 
         self.assertEqual(task_id, expected)
 
+    def test_delete_task_link(self):
+        """CentOSView - DELETE on /api/1/inf/centos sets the Link header"""
+        resp = self.app.delete('/api/1/inf/centos',
+                               headers={'X-Auth': self.token},
+                               json={'name' : 'myCentOSBox'})
+
+        task_id = resp.headers['Link']
+        expected = '<https://localhost/api/1/inf/centos/task/asdf-asdf-asdf>; rel=status'
+
+        self.assertEqual(task_id, expected)
+
     def test_image(self):
         """CentOSView - GET on the ./image end point returns the a task-id"""
         resp = self.app.get('/api/1/inf/centos/image',
@@ -75,6 +109,16 @@ class TestCentOSView(unittest.TestCase):
 
         task_id = resp.json['content']['task-id']
         expected = 'asdf-asdf-asdf'
+
+        self.assertEqual(task_id, expected)
+
+    def test_image(self):
+        """CentOSView - GET on the ./image end point returns the a task-id"""
+        resp = self.app.get('/api/1/inf/centos/image',
+                            headers={'X-Auth': self.token})
+
+        task_id = resp.headers['Link']
+        expected = '<https://localhost/api/1/inf/centos/task/asdf-asdf-asdf>; rel=status'
 
         self.assertEqual(task_id, expected)
 
