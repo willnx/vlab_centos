@@ -34,7 +34,7 @@ def show_centos(username):
     return centos_vms
 
 
-def delete_centos(username, machine_name):
+def delete_centos(username, machine_name, logger):
     """Unregister and destroy a user's CentOS
 
     :Returns: None
@@ -44,6 +44,9 @@ def delete_centos(username, machine_name):
 
     :param machine_name: The name of the VM to delete
     :type machine_name: String
+
+    :param logger: An object for logging messages
+    :type logger: logging.LoggerAdapter
     """
     with vCenter(host=const.INF_VCENTER_SERVER, user=const.INF_VCENTER_USER, \
                  password=const.INF_VCENTER_PASSWORD) as vcenter:
@@ -63,7 +66,7 @@ def delete_centos(username, machine_name):
             raise ValueError('No {} named {} found'.format('centos', machine_name))
 
 
-def create_centos(username, machine_name, image, network):
+def create_centos(username, machine_name, image, network, logger):
     """Deploy a new instance of CentOS
 
     :Returns: Dictionary
@@ -79,6 +82,9 @@ def create_centos(username, machine_name, image, network):
 
     :param network: The name of the network to connect the new CentOS instance up to
     :type network: String
+
+    :param logger: An object for logging messages
+    :type logger: logging.LoggerAdapter
     """
     with vCenter(host=const.INF_VCENTER_SERVER, user=const.INF_VCENTER_USER,
                  password=const.INF_VCENTER_PASSWORD) as vcenter:
