@@ -17,14 +17,22 @@ class TestVMware(unittest.TestCase):
     def test_show_gateway(self, fake_vCenter, fake_consume_task, fake_get_info):
         """``centos`` returns a dictionary when everything works as expected"""
         fake_vm = MagicMock()
-        fake_vm.name = 'CentOS'
+        fake_vm.name = 'myCentOS'
         fake_folder = MagicMock()
         fake_folder.childEntity = [fake_vm]
         fake_vCenter.return_value.__enter__.return_value.get_by_name.return_value = fake_folder
-        fake_get_info.return_value = {'worked': True, 'note': 'CentOS=1.0.0'}
+        fake_get_info.return_value = {'component': 'CentOS',
+                                      'created': 1234,
+                                      'version': '7',
+                                      'configured': False,
+                                      'generation': 1}
 
         output = vmware.show_centos(username='alice')
-        expected = {'CentOS': {'note': 'CentOS=1.0.0', 'worked': True}}
+        expected = {'myCentOS': {'component': 'CentOS',
+                                 'created': 1234,
+                                 'version': '7',
+                                 'configured': False,
+                                 'generation': 1}}
 
         self.assertEqual(output, expected)
 
@@ -40,7 +48,11 @@ class TestVMware(unittest.TestCase):
         fake_folder = MagicMock()
         fake_folder.childEntity = [fake_vm]
         fake_vCenter.return_value.__enter__.return_value.get_by_name.return_value = fake_folder
-        fake_get_info.return_value = {'note' : 'CentOS=1.0.0'}
+        fake_get_info.return_value = {'component': 'CentOS',
+                                      'created': 1234,
+                                      'version': '7',
+                                      'configured': False,
+                                      'generation': 1}
 
         output = vmware.delete_centos(username='bob', machine_name='CentOSBox', logger=fake_logger)
         expected = None
@@ -64,14 +76,16 @@ class TestVMware(unittest.TestCase):
         with self.assertRaises(ValueError):
             vmware.delete_centos(username='bob', machine_name='myOtherCentOSBox', logger=fake_logger)
 
+    @patch.object(vmware.virtual_machine, 'set_meta')
     @patch.object(vmware, 'Ova')
     @patch.object(vmware.virtual_machine, 'get_info')
     @patch.object(vmware.virtual_machine, 'deploy_from_ova')
     @patch.object(vmware, 'consume_task')
     @patch.object(vmware, 'vCenter')
-    def test_create_centos(self, fake_vCenter, fake_consume_task, fake_deploy_from_ova, fake_get_info, fake_Ova):
+    def test_create_centos(self, fake_vCenter, fake_consume_task, fake_deploy_from_ova, fake_get_info, fake_Ova, fake_set_meta):
         """``create_centos`` returns a dictionary upon success"""
         fake_logger = MagicMock()
+        fake_deploy_from_ova.return_value.name = "CentOSBox"
         fake_get_info.return_value = {'worked': True}
         fake_Ova.return_value.networks = ['someLAN']
         fake_vCenter.return_value.__enter__.return_value.networks = {'someLAN' : vmware.vim.Network(moId='1')}
@@ -81,7 +95,7 @@ class TestVMware(unittest.TestCase):
                                        image='1.0.0',
                                        network='someLAN',
                                        logger=fake_logger)
-        expected = {'worked': True}
+        expected = {'CentOSBox' : {'worked': True}}
 
         self.assertEqual(output, expected)
 
