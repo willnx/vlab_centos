@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 """
-TODO
+Defines the RESTful API for the CentOS service
 """
 import ujson
 from flask import current_app
@@ -17,7 +17,7 @@ logger = get_logger(__name__, loglevel=const.VLAB_CENTOS_LOG_LEVEL)
 
 
 class CentOSView(TaskView):
-    """API end point TODO"""
+    """API end point for working with CentOS VMs"""
     route_base = '/api/1/inf/centos'
     POST_SCHEMA = { "$schema": "http://json-schema.org/draft-04/schema#",
                     "type": "object",
@@ -57,7 +57,7 @@ class CentOSView(TaskView):
                     }
 
 
-    @requires(verify=False, version=(1,2))
+    @requires(verify=const.VLAB_VERIFY_TOKEN, version=(1,2))
     @describe(post=POST_SCHEMA, delete=DELETE_SCHEMA, get=GET_SCHEMA)
     def get(self, *args, **kwargs):
         """Display the CentOS instances you own"""
@@ -70,7 +70,7 @@ class CentOSView(TaskView):
         resp.headers.add('Link', '<{0}{1}/task/{2}>; rel=status'.format(const.VLAB_URL, self.route_base, task.id))
         return resp
 
-    @requires(verify=False, version=(1,2)) # XXX remove verify=False before commit
+    @requires(verify=const.VLAB_VERIFY_TOKEN, version=(1,2))
     @validate_input(schema=POST_SCHEMA)
     def post(self, *args, **kwargs):
         """Create a CentOS"""
@@ -87,7 +87,7 @@ class CentOSView(TaskView):
         resp.headers.add('Link', '<{0}{1}/task/{2}>; rel=status'.format(const.VLAB_URL, self.route_base, task.id))
         return resp
 
-    @requires(verify=False, version=(1,2)) # XXX remove verify=False before commit
+    @requires(verify=const.VLAB_VERIFY_TOKEN, version=(1,2))
     @validate_input(schema=DELETE_SCHEMA)
     def delete(self, *args, **kwargs):
         """Destroy a CentOS"""
@@ -102,7 +102,7 @@ class CentOSView(TaskView):
         return resp
 
     @route('/image', methods=["GET"])
-    @requires(verify=False, version=(1,2))
+    @requires(verify=const.VLAB_VERIFY_TOKEN, version=(1,2))
     @describe(get=IMAGES_SCHEMA)
     def image(self, *args, **kwargs):
         """Show available versions of CentOS that can be deployed"""
