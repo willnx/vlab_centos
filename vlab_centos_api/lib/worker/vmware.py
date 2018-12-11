@@ -27,7 +27,7 @@ def show_centos(username):
         folder = vcenter.get_by_name(name=username, vimtype=vim.Folder)
         for vm in folder.childEntity:
             info = virtual_machine.get_info(vcenter, vm)
-            if info['component'] == 'CentOS':
+            if info['meta']['component'] == 'CentOS':
                 centos_vms[vm.name] = info
     return centos_vms
 
@@ -52,7 +52,7 @@ def delete_centos(username, machine_name, logger):
         for entity in folder.childEntity:
             if entity.name == machine_name:
                 info = virtual_machine.get_info(vcenter, entity)
-                if info['component'] == 'CentOS':
+                if info['meta']['component'] == 'CentOS':
                     logger.debug('powering off VM')
                     virtual_machine.power(entity, state='off')
                     delete_task = entity.Destroy_Task()
