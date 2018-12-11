@@ -21,18 +21,18 @@ class TestVMware(unittest.TestCase):
         fake_folder = MagicMock()
         fake_folder.childEntity = [fake_vm]
         fake_vCenter.return_value.__enter__.return_value.get_by_name.return_value = fake_folder
-        fake_get_info.return_value = {'component': 'CentOS',
-                                      'created': 1234,
-                                      'version': '7',
-                                      'configured': False,
-                                      'generation': 1}
+        fake_get_info.return_value = {'meta' : {'component': 'CentOS',
+                                                'created': 1234,
+                                                'version': '7',
+                                                'configured': False,
+                                                'generation': 1}}
 
         output = vmware.show_centos(username='alice')
-        expected = {'myCentOS': {'component': 'CentOS',
-                                 'created': 1234,
-                                 'version': '7',
-                                 'configured': False,
-                                 'generation': 1}}
+        expected = {'myCentOS': {'meta' : {'component': 'CentOS',
+                                           'created': 1234,
+                                           'version': '7',
+                                           'configured': False,
+                                           'generation': 1}}}
 
         self.assertEqual(output, expected)
 
@@ -48,11 +48,11 @@ class TestVMware(unittest.TestCase):
         fake_folder = MagicMock()
         fake_folder.childEntity = [fake_vm]
         fake_vCenter.return_value.__enter__.return_value.get_by_name.return_value = fake_folder
-        fake_get_info.return_value = {'component': 'CentOS',
-                                      'created': 1234,
-                                      'version': '7',
-                                      'configured': False,
-                                      'generation': 1}
+        fake_get_info.return_value = {'meta' : {'component': 'CentOS',
+                                                'created': 1234,
+                                                'version': '7',
+                                                'configured': False,
+                                                'generation': 1}}
 
         output = vmware.delete_centos(username='bob', machine_name='CentOSBox', logger=fake_logger)
         expected = None
