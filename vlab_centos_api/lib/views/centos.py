@@ -18,7 +18,7 @@ logger = get_logger(__name__, loglevel=const.VLAB_CENTOS_LOG_LEVEL)
 
 class CentOSView(MachineView):
     """API end point for working with CentOS VMs"""
-    route_base = '/api/1/inf/centos'
+    route_base = '/api/2/inf/centos'
     RESROUCE = 'centos'
     POST_SCHEMA = { "$schema": "http://json-schema.org/draft-04/schema#",
                     "type": "object",
@@ -82,7 +82,7 @@ class CentOSView(MachineView):
         body = kwargs['body']
         machine_name = body['name']
         image = body['image']
-        network = body['network']
+        network = '{}_{}'.format(username, body['network'])
         task = current_app.celery_app.send_task('centos.create', [username, machine_name, image, network, txn_id])
         resp_data['content'] = {'task-id': task.id}
         resp = Response(ujson.dumps(resp_data))
