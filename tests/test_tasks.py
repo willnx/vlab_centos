@@ -39,6 +39,9 @@ class TestTasks(unittest.TestCase):
                               machine_name='centosBox',
                               image='0.0.1',
                               network='someLAN',
+                              desktop=False,
+                              ram=4,
+                              cpu_count=4,
                               txn_id='myId')
         expected = {'content' : {'worked': True}, 'error': None, 'params': {}}
 
@@ -53,6 +56,9 @@ class TestTasks(unittest.TestCase):
                               machine_name='centosBox',
                               image='0.0.1',
                               network='someLAN',
+                              desktop=False,
+                              ram=4,
+                              cpu_count=4,
                               txn_id='myId')
         expected = {'content' : {}, 'error': 'testing', 'params': {}}
 

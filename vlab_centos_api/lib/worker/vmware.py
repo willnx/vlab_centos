@@ -63,7 +63,7 @@ def delete_centos(username, machine_name, logger):
             raise ValueError('No {} named {} found'.format('centos', machine_name))
 
 
-def create_centos(username, machine_name, image, network, logger):
+def create_centos(username, machine_name, image, network, desktop, ram, cpu_count, logger):
     """Deploy a new instance of CentOS
 
     :Returns: Dictionary
@@ -80,12 +80,24 @@ def create_centos(username, machine_name, image, network, logger):
     :param network: The name of the network to connect the new CentOS instance up to
     :type network: String
 
+    :param network: The name of the network to connect the new CentOS instance up to
+    :type network: String
+
+    :param desktop: Deploy the VM with a GUI
+    :type desktop: Boolean
+
+    :param ram: The number of GB of RAM to allocate for the VM
+    :type ram: Integer
+
+    :param cpu_count: The number of CPU cores to allocate for the VM
+    :type cpu_count: Integer
+
     :param logger: An object for logging messages
     :type logger: logging.LoggerAdapter
     """
     with vCenter(host=const.INF_VCENTER_SERVER, user=const.INF_VCENTER_USER,
                  password=const.INF_VCENTER_PASSWORD) as vcenter:
-        image_name = convert_name(image)
+        image_name = convert_name(image, desktop=desktop)
         logger.info(image_name)
         try:
             ova = Ova(os.path.join(const.VLAB_CENTOS_IMAGES_DIR, image_name))
@@ -100,9 +112,14 @@ def create_centos(username, machine_name, image, network, logger):
             except KeyError:
                 raise ValueError('No such network named {}'.format(network))
             the_vm = virtual_machine.deploy_from_ova(vcenter, ova, [network_map],
-                                                     username, machine_name, logger)
+                                                     username, machine_name, logger,
+                                                     power_on=False)
         finally:
             ova.close()
+        mb_of_ram = ram * 1024
+        virtual_machine.adjust_ram(the_vm, mb_of_ram)
+        virtual_machine.adjust_cpu(the_vm, cpu_count)
+        virtual_machine.power(the_vm, state='on')
         meta_data = {'component' : "CentOS",
                      'created': time.time(),
                      'version': image,
@@ -119,11 +136,11 @@ def list_images():
     :Returns: List
     """
     images = os.listdir(const.VLAB_CENTOS_IMAGES_DIR)
-    images = [convert_name(x, to_version=True) for x in images]
+    images = list(set([convert_name(x, to_version=True) for x in images]))
     return images
 
 
-def convert_name(name, to_version=False):
+def convert_name(name, to_version=False, desktop=False):
     """This function centralizes converting between the name of the OVA, and the
     version of software it contains.
 
@@ -134,9 +151,14 @@ def convert_name(name, to_version=False):
 
     :param to_version: Set to True to covert the name of an OVA to the version
     :type to_version: Boolean
+
+    :param desktop: Set to True to obtain the name of the OVA that includes a GUI
+    :type desktop: Boolean
     """
     if to_version:
         return name.split('-')[-1].replace('.ova', '')
+    elif desktop:
+        return 'CentOS-desktop-{}.ova'.format(name)
     else:
         return 'CentOS-{}.ova'.format(name)
 

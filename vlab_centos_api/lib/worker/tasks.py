@@ -38,7 +38,7 @@ def show(self, username, txn_id):
 
 
 @app.task(name='centos.create', bind=True)
-def create(self, username, machine_name, image, network, txn_id):
+def create(self, username, machine_name, image, network, desktop, ram, cpu_count, txn_id):
     """Deploy a new instance of CentOS
 
     :Returns: Dictionary
@@ -55,6 +55,15 @@ def create(self, username, machine_name, image, network, txn_id):
     :param network: The name of the network to connect the new CentOS instance up to
     :type network: String
 
+    :param desktop: Deploy the VM with a GUI
+    :type desktop: Boolean
+
+    :param ram: The number of GB of RAM to allocate for the VM
+    :type ram: Integer
+
+    :param cpu_count: The number of CPU cores to allocate for the VM
+    :type cpu_count: Integer
+
     :param txn_id: A unique string supplied by the client to track the call through logs
     :type txn_id: String
     """
@@ -62,7 +71,14 @@ def create(self, username, machine_name, image, network, txn_id):
     resp = {'content' : {}, 'error': None, 'params': {}}
     logger.info('Task starting')
     try:
-        resp['content'] = vmware.create_centos(username, machine_name, image, network, logger)
+        resp['content'] = vmware.create_centos(username,
+                                               machine_name,
+                                               image,
+                                               network,
+                                               desktop,
+                                               ram,
+                                               cpu_count,
+                                               logger)
     except ValueError as doh:
         logger.error('Task failed: {}'.format(doh))
         resp['error'] = '{}'.format(doh)
