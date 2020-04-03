@@ -76,13 +76,17 @@ class TestVMware(unittest.TestCase):
         with self.assertRaises(ValueError):
             vmware.delete_centos(username='bob', machine_name='myOtherCentOSBox', logger=fake_logger)
 
+    @patch.object(vmware.virtual_machine, 'adjust_ram')
+    @patch.object(vmware.virtual_machine, 'adjust_cpu')
     @patch.object(vmware.virtual_machine, 'set_meta')
     @patch.object(vmware, 'Ova')
     @patch.object(vmware.virtual_machine, 'get_info')
     @patch.object(vmware.virtual_machine, 'deploy_from_ova')
     @patch.object(vmware, 'consume_task')
     @patch.object(vmware, 'vCenter')
-    def test_create_centos(self, fake_vCenter, fake_consume_task, fake_deploy_from_ova, fake_get_info, fake_Ova, fake_set_meta):
+    def test_create_centos(self, fake_vCenter, fake_consume_task, fake_deploy_from_ova,
+                           fake_get_info, fake_Ova, fake_set_meta, fake_adjust_cpu,
+                           fake_adjust_ram):
         """``create_centos`` returns a dictionary upon success"""
         fake_logger = MagicMock()
         fake_deploy_from_ova.return_value.name = "CentOSBox"
@@ -94,6 +98,9 @@ class TestVMware(unittest.TestCase):
                                        machine_name='CentOSBox',
                                        image='1.0.0',
                                        network='someLAN',
+                                       desktop=False,
+                                       ram=4,
+                                       cpu_count=4,
                                        logger=fake_logger)
         expected = {'CentOSBox' : {'worked': True}}
 
@@ -116,6 +123,9 @@ class TestVMware(unittest.TestCase):
                                   machine_name='CentOSBox',
                                   image='1.0.0',
                                   network='someOtherLAN',
+                                  desktop=False,
+                                  ram=4,
+                                  cpu_count=4,
                                   logger=fake_logger)
 
     @patch.object(vmware, 'Ova')
@@ -135,6 +145,9 @@ class TestVMware(unittest.TestCase):
                                   machine_name='CentOSBox',
                                   image='1.0.0',
                                   network='someOtherLAN',
+                                  desktop=False,
+                                  ram=4,
+                                  cpu_count=4,
                                   logger=fake_logger)
 
     @patch.object(vmware.os, 'listdir')

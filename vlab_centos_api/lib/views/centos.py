@@ -35,6 +35,23 @@ class CentOSView(MachineView):
                         "network": {
                             "description": "The network to hook the CentOS instance up to",
                             "type": "string"
+                        },
+                        "desktop": {
+                            "description": "Deploy the VM with a GUI",
+                            "type": "boolean",
+                            "default": "false",
+                        },
+                        "cpu-count": {
+                            "description": "The number of CPU cores to allocate to the VM",
+                            "type": "integer",
+                            "default": 4,
+                            "enum": [4, 8, 12]
+                        },
+                        "ram": {
+                            "description": "The number of GB of RAM to allocate to the VM",
+                            "type": "integer",
+                            "default": 4,
+                            "enum": [4, 6, 8]
                         }
                     },
                     "required": ["name", "image", "network"]
@@ -82,8 +99,18 @@ class CentOSView(MachineView):
         body = kwargs['body']
         machine_name = body['name']
         image = body['image']
+        desktop = body.get('desktop', False)
+        ram = body.get('ram', 4)
+        cpu_count = body.get('cpu-count', 4)
         network = '{}_{}'.format(username, body['network'])
-        task = current_app.celery_app.send_task('centos.create', [username, machine_name, image, network, txn_id])
+        task = current_app.celery_app.send_task('centos.create', [username,
+                                                                  machine_name,
+                                                                  image,
+                                                                  network,
+                                                                  desktop,
+                                                                  ram,
+                                                                  cpu_count,
+                                                                  txn_id])
         resp_data['content'] = {'task-id': task.id}
         resp = Response(ujson.dumps(resp_data))
         resp.status_code = 202
